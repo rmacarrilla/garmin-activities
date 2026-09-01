@@ -39,8 +39,19 @@ class BearerTokenMiddleware(BaseHTTPMiddleware):
 if __name__ == "__main__":
     if os.getenv("MCP_TRANSPORT") == "http":
         import uvicorn
+        from mcp.server.transport_security import TransportSecuritySettings
 
-        app = mcp.streamable_http_app()
+        public_domain = os.getenv("RAILWAY_PUBLIC_DOMAIN")
+        transport_security = (
+            TransportSecuritySettings(
+                allowed_hosts=[public_domain],
+                allowed_origins=[f"https://{public_domain}"],
+            )
+            if public_domain
+            else None
+        )
+
+        app = mcp.streamable_http_app(transport_security=transport_security)
         app.add_middleware(BearerTokenMiddleware)
         uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
     else:
