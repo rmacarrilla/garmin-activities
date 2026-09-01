@@ -27,11 +27,17 @@ def list_activities(limit: int = 5) -> list[dict]:
 
 
 class BearerTokenMiddleware(BaseHTTPMiddleware):
-    """Rechaza cualquier petición que no traiga la clave compartida en la cabecera Authorization."""
+    """Rechaza cualquier petición que no traiga la clave compartida, ya sea en la
+    cabecera Authorization (clientes MCP normales) o en el parámetro ?apiKey=
+    (enlaces de un clic, que no permiten configurar cabeceras)."""
 
     async def dispatch(self, request: Request, call_next):
         expected = os.environ["MCP_AUTH_TOKEN"]
-        if request.headers.get("authorization") != f"Bearer {expected}":
+        authorized = (
+            request.headers.get("authorization") == f"Bearer {expected}"
+            or request.query_params.get("apiKey") == expected
+        )
+        if not authorized:
             return JSONResponse({"error": "unauthorized"}, status_code=401)
         return await call_next(request)
 
