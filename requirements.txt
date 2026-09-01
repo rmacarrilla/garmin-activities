@@ -1,0 +1,5 @@
+# Cliente no oficial de la API de Garmin Connect
+garminconnect==0.3.11
+
+# Carga variables desde el fichero .env
+python-dotenv==1.2.3
