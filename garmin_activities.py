@@ -12,7 +12,7 @@ load_dotenv()
 
 email = os.getenv("GARMIN_EMAIL")
 password = os.getenv("GARMIN_PASSWORD")
-tokenstore = os.path.expanduser("~/.garminconnect")
+tokenstore = os.getenv("GARMIN_TOKENSTORE", os.path.expanduser("~/.garminconnect"))
 
 try:
     client = Garmin(email=email, password=password)
